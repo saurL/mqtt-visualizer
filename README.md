@@ -1,16 +1,42 @@
-# Tauri + Vue + TypeScript
+# MQTT Visualizer
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+MQTT Visualizer est une application permettant de visualiser les données échangées sur un serveur MQTT. Elle offre une interface simple et intuitive pour surveiller et analyser les messages publiés sur différents topics.
 
-## Recommended IDE Setup
+## Objectif du projet
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+Ce projet a été réalisé dans le cadre de l'association **Nereides** à l'Université de Technologie de Troyes (UTT). Il vise à fournir un outil pratique pour les étudiants et les membres de l'association travaillant avec le protocole MQTT.
 
-## Type Support For `.vue` Imports in TS
+## Fonctionnalités
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type by default. In most cases this is fine if you don't really care about component prop types outside of templates. However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
+- Connexion à un serveur MQTT.
+- Abonnement à des topics spécifiques.
+- Affichage en temps réel des messages reçus.
+- Interface utilisateur conviviale.
 
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default, Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
+## Prérequis
 
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+- Node.js (version X ou supérieure)
+- Un serveur MQTT accessible
+
+## Installation
+
+1. Clonez ce dépôt :
+
+   ```bash
+   git clone https://github.com/username/mqtt-visualizer.git
+   cd mqtt-visualizer
+   ```
+
+2. Installez les dépendances :
+
+   ```bash
+   npm install
+   pnpm install
+
+   ```
+
+3. Lancez l'application :
+   ```bash
+   npm run tauri dev
+   pnpm run tauri dev
+   ```
