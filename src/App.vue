@@ -22,7 +22,22 @@ onMounted(async () => {
       :key="dataName"
       :data_name="dataName"
     ></RealTimeChart>
+    <ChangingValue
+      v-for="dataName in dataNames"
+      :key="dataName"
+      :data_name="dataName"
+    ></ChangingValue>
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  background-color: #f0f0f0;
+  flex-wrap: wrap;
+}
+</style>
