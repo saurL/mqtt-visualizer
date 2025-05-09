@@ -1,12 +1,20 @@
 <template>
-  <p>{{ data_name }} :</p>
-  <p class="">{{ roundToTwo(displayed_data) }} {{ symbol }}</p>
+  <Card>
+    <CardTitle>{{ title }}</CardTitle>
+    <CardContent> {{ displayed_data }} {{ symbol }} </CardContent>
+  </Card>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { computed, ref } from "vue";
+import { useMyStore } from "@/stores/store";
 import { listen } from "@tauri-apps/api/event";
 const props = defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
   data_name: {
     type: String,
     required: true,
@@ -32,14 +40,13 @@ const props = defineProps({
     default: 0,
   },
 });
-const displayed_data = ref(0);
-listen(props.data_name, (event) => {
-  console.log(event);
-  displayed_data.value = event.payload as number; // Traitement de l'événement
+const store = useMyStore();
+const displayed_data = ref("");
+store.map[props.data_name];
+
+listen(props.data_name, (event: any) => {
+  displayed_data.value = event.payload as string; // Mettre à jour le tableau dans le store
 });
-function roundToTwo(num: number) {
-  return Math.round(num * 100) / 100;
-}
 </script>
 <style scoped>
 .coloredData {

@@ -1,14 +1,26 @@
 <script setup lang="ts">
+import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
-import { ref, onMounted } from "vue";
-import ChangingValue from "./component/ChangingValue.vue";
-import RealTimeChart from "./component/RealTimeChart.vue";
+import { onMounted, ref } from "vue";
+import { useMyStore } from "@/stores/store";
 const dataNames = ref<string[]>([]);
+const store = useMyStore();
 
 onMounted(async () => {
   try {
     dataNames.value = await invoke<string[]>("get_data_names");
     console.log("Data names:", dataNames.value);
+    for (const dataname of dataNames.value) {
+      store.map[dataname] = []; // Initialize the array for each data name
+      listen(dataname, (event) => {
+        if (dataname == "ipv4") {
+          return;
+        }
+        const now = new Date().getTime();
+
+        store.map[dataname].push([now, event.payload as number]); // Mettre à jour le tableau dans le store
+      });
+    }
   } catch (error) {
     console.error("Failed to fetch data names:", error);
   }
@@ -16,28 +28,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="container">
-    <RealTimeChart
-      v-for="dataName in dataNames"
-      :key="dataName"
-      :data_name="dataName"
-    ></RealTimeChart>
-    <ChangingValue
-      v-for="dataName in dataNames"
-      :key="dataName"
-      :data_name="dataName"
-    ></ChangingValue>
+  <main class="w-full h-full flex flex-col items-center justify-center">
+    <router-view />
   </main>
 </template>
 
-<style scoped>
-.container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  background-color: #f0f0f0;
-  flex-wrap: wrap;
-}
-</style>
+<style scoped></style>

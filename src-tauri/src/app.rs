@@ -3,6 +3,7 @@ use std::{sync::Arc, time::Duration}; // Import the Stream trait for the `next` 
 
 use log::{error, info};
 use paho_mqtt::{AsyncClient, ConnectOptionsBuilder, CreateOptionsBuilder, QoS};
+use std::net::Ipv4Addr;
 use tauri::{async_runtime::spawn, AppHandle, Emitter};
 
 pub struct App {
@@ -16,21 +17,44 @@ impl App {
         let broker = "broker.hivemq.com";
         let port = 1883;
         let data = [
-            "pac_temperature",
+            "ipv4",
             "battery_voltage_v",
             "battery_current_a",
             "battery_soc",
-            "battery_temp",
+            "battery_soh",
+            "battery_temp_c",
             "batterySE_temp",
             "motor_controller_temp",
+            "motor_controller_status",
+            "gps_millis",
+            "gps_time",
+            "gps_latitude",
+            "gps_longitude",
+            "gps_vitesse",
             "mottor_current_a",
             "motor_voltage_v",
             "motor_rpm",
             "motor_throttle",
-            "gps_long",
-            "gps_lat",
-            "motor_puissance_instantannée",
+            "motor_temp",
+            "motor_error_code",
+            "motor_switch_signals_status",
+            "pac_emergency_stop",
+            "pac_start",
+            "pac_stop",
+            "pac_current_a",
+            "pac_voltage_v",
+            "pac_system_state",
+            "pac_error_flag",
+            "pac_hydrogen_consumption_mgs",
+            "pac_temperature_c",
+            "pac_system_errors",
+            "pac_fan_error",
+            "pac_operation_time",
+            "pac_produced_energy",
+            "pac_total_operation_time",
+            "pac_total_produced_energy",
         ];
+
         let uri: String = format!("tcp://{}:{}", broker, port);
         let create_opts = CreateOptionsBuilder::new()
             .server_uri(uri)
@@ -97,34 +121,41 @@ impl App {
                         );
 
                         // Vérifier si le payload a la taille d'un f64 (8 octets)
-                        if payload.len() == 8 {
-                            match <[u8; 8]>::try_from(payload) {
-                                Ok(bytes) => {
-                                    // Décoder les octets en f64 (little-endian)
-                                    let value = f64::from_le_bytes(bytes);
-                                    info!("Decoded f64 value: {}", value);
-                                    let data_name = msg
-                                        .topic()
-                                        .strip_prefix("nereides/")
-                                        .unwrap_or(msg.topic());
+                        // Décoder les octets en f64 (little-endian)
+                        let data_name =
+                            msg.topic().strip_prefix("nereides/").unwrap_or(msg.topic());
+                        match data_name {
+                            "ipv4" => {
+                                let ip_u32 =
+                                    u32::from_le_bytes(payload.try_into().unwrap_or([0; 4]));
+                                let ipv4 = Ipv4Addr::from(ip_u32);
+                                let value = ipv4.to_string();
+                                info!("Decoded value: {}", value);
+                                instance
+                                    .app_handle
+                                    .emit(data_name, value)
+                                    .unwrap_or_else(|e| {
+                                        error!("Failed to emit message: {:?}", e);
+                                    });
+                                // Convert the string to a float (example conversion)
+                            } // Example value for "ipv4"
+
+                            _ => {
+                                if payload.len() == 8 {
+                                    let array: [u8; 8] = payload.try_into().unwrap_or([0; 8]);
+                                    let value = f64::from_le_bytes(array);
+                                    info!("Decoded value: {}", value);
                                     instance.app_handle.emit(data_name, value).unwrap_or_else(
                                         |e| {
                                             error!("Failed to emit message: {:?}", e);
                                         },
                                     );
-                                }
-                                Err(e) => {
-                                    error!("Failed to convert payload to f64: {:?}", e);
+                                } else {
+                                    error!("Payload size mismatch for f64 conversion");
+                                    continue;
                                 }
                             }
-                        } else {
-                            error!(
-                                "Invalid payload size: {} bytes, expected 8 for f64",
-                                payload.len()
-                            );
-                        }
-                    } else {
-                        error!("Error receiving message: {:?}", msg_opt);
+                        };
                     }
                 }
             }
