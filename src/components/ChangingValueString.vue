@@ -7,9 +7,9 @@
 
 <script setup lang="ts">
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { computed, ref } from "vue";
 import { useMyStore } from "@/stores/store";
 import { listen } from "@tauri-apps/api/event";
+import { ref } from "vue";
 const props = defineProps({
   title: {
     type: String,
